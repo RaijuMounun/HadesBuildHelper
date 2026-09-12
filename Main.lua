@@ -2,33 +2,33 @@
 ModUtil.Mod.Register("HadesHelper")
 
 -- ============================================================
--- [DEBUG TEST] - Remove after in-game UI verification
--- Hook: OpenUpgradeChoiceMenu (confirmed from UpgradeChoice.lua line 2)
--- Anchor: ScreenAnchors.ChoiceScreen.Components.ShopBackground.Id
+-- [DEBUG TEST] - Remove after verification
+-- Creates our OWN screen component as anchor (no ScreenAnchors dependency)
 -- ============================================================
 ModUtil.Path.Wrap("OpenUpgradeChoiceMenu", function(baseFunc, ...)
     local rv = baseFunc(...)
     thread(function()
-        wait(0.5)
-        local ok, err = pcall(function()
-            local screen = ScreenAnchors.ChoiceScreen
-            if screen and screen.Components and screen.Components.ShopBackground then
-                CreateTextBox({
-                    Id = screen.Components.ShopBackground.Id,
-                    Text = "[ HadesHelper v1.0 ]",
-                    Color = { 0, 1, 0.5, 1 }, -- Bright cyan-green, easy to spot
-                    OffsetX = 0,
-                    OffsetY = 220,             -- Below the boon list, not overlapping
-                    FontSize = 22,
-                    Justification = "Center",
-                    ShadowColor = { 0, 0, 0, 1 },
-                    ShadowOffset = { 0, 2 },
-                    OutlineThickness = 2,
-                })
-            end
-        end)
-        if not ok then
-            print("[HadesHelper] UI Error: " .. tostring(err))
+        wait(0.8)
+        -- Create our own anchor instead of relying on ScreenAnchors
+        local anchor = CreateScreenComponent({
+            Name = "rectangle01",
+            Group = "Combat_Menu_Additive",
+            X = ScreenCenterX,
+            Y = ScreenCenterY + 280,
+        })
+        if anchor then
+            CreateTextBox({
+                Id = anchor.Id,
+                Text = "[ HadesHelper v1.0 ACTIVE ]",
+                Color = { 0.2, 1, 0.2, 1 },   -- Bright lime green
+                OffsetX = 0,
+                OffsetY = 0,
+                FontSize = 26,
+                Justification = "Center",
+                ShadowColor = { 0, 0, 0, 1 },
+                ShadowOffset = { 0, 3 },
+                OutlineThickness = 3,
+            })
         end
     end)
     return rv
