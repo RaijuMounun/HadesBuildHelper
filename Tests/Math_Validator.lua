@@ -3,7 +3,7 @@
 
 -- Utility Engine Scoring Mock using Response Curves
 local function curve_polynomial(x, exponent)
-    return math.pow(x, exponent)
+    return x ^ exponent
 end
 
 local function calculate_score(base_score, rarity_mod, health_percent, pool_penalty_active)
