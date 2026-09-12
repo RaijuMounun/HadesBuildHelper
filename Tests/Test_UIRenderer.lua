@@ -7,14 +7,15 @@ local MockColor = {
 -- Mocking Hades globals
 _G.Color = MockColor
 
+local lastTextBoxArgs = nil
 _G.thread = function(fn) fn() end
 _G.wait = function(time) end
-_G.CreateTextBox = function(args) end
+_G.CreateTextBox = function(args) lastTextBoxArgs = args end
 _G.ModifyTextBox = function(args) end
 _G.DebugPrint = function(args) print(args.Text) end
 
 -- Mocking ModUtil
-_G.ModUtil = { Path = { Wrap = function() end } }
+_G.ModUtil = { Path = { Wrap = function(path, fn) end } }
 
 require("UI.UIRenderer")
 
@@ -26,6 +27,10 @@ local TestVectors = {
     {
         name = "FormatScore 85%",
         func = function() return HadesHelper.UI.FormatScore(0.85) == "[ 85% ]" end
+    },
+    {
+        name = "FormatScore 79.9% floors correctly",
+        func = function() return HadesHelper.UI.FormatScore(0.799) == "[ 80% ]" end
     },
     {
         name = "FormatScore 5%",
@@ -46,6 +51,39 @@ local TestVectors = {
     {
         name = "Color DarkGray (< 50%)",
         func = function() return HadesHelper.UI.GetColorForScore(0.49, false) == Color.DarkGray end
+    },
+    {
+        name = "RenderComponentScore calls CreateTextBox with right args",
+        func = function()
+            lastTextBoxArgs = nil
+            local mockComponent = { Id = 12345 }
+            HadesHelper.UI.RenderComponentScore(mockComponent, 0.85, false)
+            return lastTextBoxArgs ~= nil 
+               and lastTextBoxArgs.Id == 12345 
+               and lastTextBoxArgs.Text == "[ 85% ]"
+               and lastTextBoxArgs.Color == Color.Gold
+        end
+    },
+    {
+        name = "RenderRerollRecommendation shows if EV is low",
+        func = function()
+            lastTextBoxArgs = nil
+            local diceComponent = { Id = 999 }
+            HadesHelper.UI.RenderRerollRecommendation(diceComponent, 0.90, 0.70)
+            if lastTextBoxArgs == nil then error("lastTextBoxArgs is nil") end
+            if lastTextBoxArgs.Id ~= 999 then error("Id is " .. tostring(lastTextBoxArgs.Id)) end
+            if lastTextBoxArgs.Text ~= "[ REROLL TAVSİYESİ: 90% ]" then error("Text is '" .. tostring(lastTextBoxArgs.Text) .. "'") end
+            return true
+        end
+    },
+    {
+        name = "RenderRerollRecommendation does not show if EV is high",
+        func = function()
+            lastTextBoxArgs = nil
+            local diceComponent = { Id = 999 }
+            HadesHelper.UI.RenderRerollRecommendation(diceComponent, 0.90, 0.80) -- 0.80 > (0.90 - 0.15) -> 0.75
+            return lastTextBoxArgs == nil
+        end
     }
 }
 
