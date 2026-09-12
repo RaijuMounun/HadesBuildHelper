@@ -7,46 +7,39 @@ OnAnyLoad{ function( triggerArgs )
     if HadesHelper.Initialized then return end
     HadesHelper.Initialized = true
 
-    -- 1. Hook opening the boon screen
-    local origOpen = OpenUpgradeChoiceMenu
-    OpenUpgradeChoiceMenu = function( ... )
-        local rv = origOpen( ... )
+    -- Hook the exact function that creates the boon cards
+    local origCreateButtons = CreateBoonLootButtons
+    CreateBoonLootButtons = function( lootData, reroll )
+        local rv = origCreateButtons( lootData, reroll )
+        
         thread( function()
-            wait( 0.5 ) -- Wait for menu animations to finish
+            wait( 0.2 ) -- Give the game a fraction of a second to spawn the buttons
             
-            local anchor = CreateScreenComponent({ 
-                Name = "BlankObstacle", 
-                Group = "Combat_Menu_Overlay", -- Guaranteed top layer
-                X = ScreenCenterX, 
-                Y = ScreenCenterY - 350 -- Positioned at the top of the boon menu
-            })
-            
-            CreateTextBox({
-                Id = anchor.Id,
-                Text = "HADES HELPER ACTIVE",
-                Color = { 1, 0.84, 0, 1 }, -- Gold
-                FontSize = 32,
-                Justification = "Center",
-                ShadowColor = { 0, 0, 0, 1 },
-                ShadowOffset = { 0, 3 },
-                OutlineThickness = 3,
-            })
-            
-            -- Save anchor so we can destroy it later
-            ScreenAnchors.HadesHelperTitle = anchor
+            if ScreenAnchors.ChoiceScreen and ScreenAnchors.ChoiceScreen.Components then
+                local components = ScreenAnchors.ChoiceScreen.Components
+                
+                -- Hades creates 3 buttons named PurchaseButton1, PurchaseButton2, PurchaseButton3
+                for i = 1, 3 do
+                    local buttonKey = "PurchaseButton"..i
+                    if components[buttonKey] then
+                        -- Attach our text DIRECTLY to the boon card!
+                        CreateTextBox({
+                            Id = components[buttonKey].Id,
+                            Text = "SCORE: 95",
+                            Color = { 0, 1, 0, 1 }, -- Green
+                            OffsetX = 300,          -- Push it to the right side of the card
+                            OffsetY = -50,          -- Slightly above the center of the card
+                            FontSize = 24,
+                            Justification = "Right",
+                            ShadowColor = { 0, 0, 0, 1 },
+                            ShadowOffset = { 0, 2 },
+                            OutlineThickness = 3,
+                        })
+                    end
+                end
+            end
         end )
         return rv
-    end
-
-    -- 2. Hook closing the boon screen to clean up our UI
-    local origClose = CloseUpgradeChoiceScreen
-    CloseUpgradeChoiceScreen = function( screen, button )
-        if ScreenAnchors.HadesHelperTitle then
-            DestroyTextBox({ Id = ScreenAnchors.HadesHelperTitle.Id })
-            Destroy({ Id = ScreenAnchors.HadesHelperTitle.Id })
-            ScreenAnchors.HadesHelperTitle = nil
-        end
-        return origClose( screen, button )
     end
 
 end }
