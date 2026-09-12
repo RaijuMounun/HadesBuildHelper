@@ -1,0 +1,3 @@
+name: HadesBuildHelper
+version: 1.0.0
+description: Hades Build Helper Mod
