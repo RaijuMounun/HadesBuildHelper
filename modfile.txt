@@ -1,4 +1,4 @@
-ModName: HadesBuildHelper
-Description: Hades Build Helper Mod
-Version: 1.0.0
-Author: Eren
+:: Hades Build Helper Mod
+
+To "Scripts/Main.lua"
+	Import "Main.lua"
