@@ -4,24 +4,10 @@
 local MockGameData = require("Tests.MockGameData")
 local GameDataParser = require("Data.GameDataParser")
 local StateReader = require("Engine.StateReader")
+local ScoringEngine = require("Engine.ScoringEngine")
+local EVSimulator = require("Engine.EVSimulator")
+local Blueprints = require("Data.Blueprints")
 
--- Utility Engine Scoring Mock using Response Curves
-local function curve_polynomial(x, exponent)
-    return x ^ exponent
-end
-
-local function calculate_score(base_score, rarity_mod, health_percent, pool_penalty_active)
-    -- Panic State: inverse polynomial curve
-    local panic_factor = curve_polynomial(1.0 - health_percent, 2.0)
-    -- Panic modifier scales from 1x (at 100% HP) up to 5x (at 0% HP)
-    local state_mod = 1.0 + (panic_factor * 4.0)
-    
-    local pool_mod = pool_penalty_active and 0.01 or 1.00
-
-    local final = base_score * rarity_mod * state_mod * pool_mod
-    -- Clamp between 0.0 and 1.0
-    return math.min(1.0, math.max(0.0, final))
-end
 
 -- Math Test Vectors (Syncs with 10_Math_Test_Vectors.md)
 local TestVectors = {
@@ -54,6 +40,16 @@ local TestVectors = {
         name = "TV6: StateReader - Health Percent Calculation",
         inputs = { type = "statereader" },
         expected = 0.25
+    },
+    {
+        name = "TV7: EVSimulator - PruneBlueprints checks 4-God limit",
+        inputs = { type = "pruning" },
+        expected = 1
+    },
+    {
+        name = "TV8: ScoringEngine - Blueprint Boon Evaluation",
+        inputs = { type = "blueprint_eval", boon = "ZeusWeaponBoon" },
+        expected = 1.0
     }
 }
 
@@ -77,8 +73,15 @@ for i, test in ipairs(TestVectors) do
         local state = StateReader.Parse(MockGameData.CurrentRun)
         result = state.HealthPercent
         passed_test = (math.abs(result - test.expected) <= EPSILON)
+    elseif test.inputs.type == "pruning" then
+        local valid = EVSimulator.PruneBlueprints(Blueprints, MockGameData.CurrentRun.LootTypeHistory)
+        result = #valid
+        passed_test = (result == test.expected)
+    elseif test.inputs.type == "blueprint_eval" then
+        result = ScoringEngine.evaluate_boon(test.inputs.boon, Blueprints)
+        passed_test = (math.abs(result - test.expected) <= EPSILON)
     else
-        result = calculate_score(test.inputs.base, test.inputs.rarity, test.inputs.hp, test.inputs.pool)
+        result = ScoringEngine.calculate_score(test.inputs.base, test.inputs.rarity, test.inputs.hp, test.inputs.pool)
         passed_test = (math.abs(result - test.expected) <= EPSILON)
     end
     
