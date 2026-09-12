@@ -1,3 +1,4 @@
-name: HadesBuildHelper
-version: 1.0.0
-description: Hades Build Helper Mod
+ModName: HadesBuildHelper
+Description: Hades Build Helper Mod
+Version: 1.0.0
+Author: Eren
