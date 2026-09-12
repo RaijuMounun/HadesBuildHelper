@@ -1,12 +1,23 @@
 local EVSimulator = {}
 
+local CoreGods = {
+    Zeus = true,
+    Poseidon = true,
+    Athena = true,
+    Aphrodite = true,
+    Artemis = true,
+    Ares = true,
+    Dionysus = true,
+    Demeter = true
+}
+
 function EVSimulator.PruneBlueprints(blueprints, active_gods)
     local active_count = 0
     local god_set = {}
     
     if active_gods then
         for _, god in ipairs(active_gods) do
-            if not god_set[god] then
+            if CoreGods[god] and not god_set[god] then
                 god_set[god] = true
                 active_count = active_count + 1
             end
@@ -18,7 +29,7 @@ function EVSimulator.PruneBlueprints(blueprints, active_gods)
         local required_new_gods = 0
         if bp.Gods then
             for _, bgod in ipairs(bp.Gods) do
-                if not god_set[bgod] then
+                if CoreGods[bgod] and not god_set[bgod] then
                     required_new_gods = required_new_gods + 1
                 end
             end

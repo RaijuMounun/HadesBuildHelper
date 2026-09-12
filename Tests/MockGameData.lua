@@ -18,7 +18,7 @@ MockGameData.CurrentRun = {
             MockGameData.TraitData.ZeusWeaponBoon
         }
     },
-    LootTypeHistory = { "Zeus", "Athena", "Ares", "Aphrodite" }
+    LootTypeHistory = { "Zeus", "Athena", "Ares", "Hermes" }
 }
 
 return MockGameData

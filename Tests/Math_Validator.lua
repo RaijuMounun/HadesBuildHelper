@@ -44,7 +44,7 @@ local TestVectors = {
     {
         name = "TV7: EVSimulator - PruneBlueprints checks 4-God limit",
         inputs = { type = "pruning" },
-        expected = 1
+        expected = 2
     },
     {
         name = "TV8: ScoringEngine - Blueprint Boon Evaluation",
