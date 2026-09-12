@@ -3,11 +3,10 @@ ModUtil.Mod.Register("HadesHelper")
 
 -- ============================================================
 -- [DEBUG TEST] - Remove after in-game UI verification
--- Shows "HadesHelper ACTIVE" text when boon screen opens
--- Hook: CreateBoonLootButtons (real function from UpgradeChoice.lua)
--- Anchor: ScreenAnchors.ChoiceScreen.Components.ShopBackground
+-- Hook: OpenUpgradeChoiceMenu (confirmed from UpgradeChoice.lua line 2)
+-- Anchor: ScreenAnchors.ChoiceScreen.Components.ShopBackground.Id
 -- ============================================================
-ModUtil.Path.Wrap("CreateBoonLootButtons", function(baseFunc, ...)
+ModUtil.Path.Wrap("OpenUpgradeChoiceMenu", function(baseFunc, ...)
     local rv = baseFunc(...)
     thread(function()
         wait(0.5)
@@ -16,11 +15,11 @@ ModUtil.Path.Wrap("CreateBoonLootButtons", function(baseFunc, ...)
             if screen and screen.Components and screen.Components.ShopBackground then
                 CreateTextBox({
                     Id = screen.Components.ShopBackground.Id,
-                    Text = "HadesHelper ACTIVE",
-                    Color = { 1, 0.84, 0, 1 },
+                    Text = "[ HadesHelper v1.0 ]",
+                    Color = { 0, 1, 0.5, 1 }, -- Bright cyan-green, easy to spot
                     OffsetX = 0,
-                    OffsetY = -260,
-                    FontSize = 20,
+                    OffsetY = 220,             -- Below the boon list, not overlapping
+                    FontSize = 22,
                     Justification = "Center",
                     ShadowColor = { 0, 0, 0, 1 },
                     ShadowOffset = { 0, 2 },
