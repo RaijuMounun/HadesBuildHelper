@@ -1,6 +1,10 @@
 -- AAA Standard: Standalone Math Validator for Utility AI (V2 - Response Curves)
 -- Usage: lua Math_Validator.lua
 
+local MockGameData = require("Tests.MockGameData")
+local GameDataParser = require("Data.GameDataParser")
+local StateReader = require("Engine.StateReader")
+
 -- Utility Engine Scoring Mock using Response Curves
 local function curve_polynomial(x, exponent)
     return x ^ exponent
@@ -40,6 +44,16 @@ local TestVectors = {
         name = "TV4: Epic Rarity Modifier (at 80% HP)",
         inputs = { base = 0.50, rarity = 1.50, hp = 0.80, pool = false },
         expected = 0.87 -- 0.50 * 1.50 * (1.0 + 0.04*4.0) = 0.75 * 1.16 = 0.87
+    },
+    {
+        name = "TV5: GameDataParser - Trait Name Extracted",
+        inputs = { type = "parser", mockKey = "ZeusWeaponBoon" },
+        expected = "ZeusWeaponBoon"
+    },
+    {
+        name = "TV6: StateReader - Health Percent Calculation",
+        inputs = { type = "statereader" },
+        expected = 0.25
     }
 }
 
@@ -52,14 +66,27 @@ print("Starting AAA Math Validator Test Suite...")
 print("========================================")
 
 for i, test in ipairs(TestVectors) do
-    local result = calculate_score(test.inputs.base, test.inputs.rarity, test.inputs.hp, test.inputs.pool)
-    local diff = math.abs(result - test.expected)
+    local result
+    local passed_test = false
     
-    if diff <= EPSILON then
+    if test.inputs.type == "parser" then
+        local parsed = GameDataParser.ParseTraits(MockGameData.TraitData)
+        result = parsed[test.inputs.mockKey].Name
+        passed_test = (result == test.expected)
+    elseif test.inputs.type == "statereader" then
+        local state = StateReader.Parse(MockGameData.CurrentRun)
+        result = state.HealthPercent
+        passed_test = (math.abs(result - test.expected) <= EPSILON)
+    else
+        result = calculate_score(test.inputs.base, test.inputs.rarity, test.inputs.hp, test.inputs.pool)
+        passed_test = (math.abs(result - test.expected) <= EPSILON)
+    end
+    
+    if passed_test then
         print(string.format("[PASS] %s", test.name))
         passed = passed + 1
     else
-        print(string.format("[FAIL] %s | Expected: %.3f, Got: %.3f", test.name, test.expected, result))
+        print(string.format("[FAIL] %s | Expected: %s, Got: %s", test.name, tostring(test.expected), tostring(result)))
         failed = failed + 1
     end
 end
