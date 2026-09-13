@@ -1,12 +1,9 @@
 import os
 import shutil
-import subprocess
 
 # Paths
 SOURCE_DIR = r"c:\Users\Eren\Desktop\-\Projeler\HadesBuildHelper"
 TARGET_DIR = r"C:\Program Files (x86)\Steam\steamapps\common\Hades\Content\Mods\HadesBuildHelper"
-CONTENT_DIR = r"C:\Program Files (x86)\Steam\steamapps\common\Hades\Content"
-MOD_IMPORTER = os.path.join(CONTENT_DIR, "modimporter.exe")
 
 print("Deploying HadesBuildHelper...")
 
@@ -26,17 +23,4 @@ for item in os.listdir(SOURCE_DIR):
         shutil.copy2(s, d)
 
 print(f"Files copied successfully from {SOURCE_DIR} to {TARGET_DIR}.")
-
-# 2. Run Mod Importer
-print("Running modimporter.exe...")
-# Mod importer must be run from the Content directory
-os.chdir(CONTENT_DIR) 
-result = subprocess.run([MOD_IMPORTER], capture_output=True, text=True)
-
-print("--- Mod Importer Output ---")
-print(result.stdout)
-if result.stderr:
-    print("--- Errors ---")
-    print(result.stderr)
-
-print("Deploy complete! You can now launch/test the game.")
+print("Deploy complete! Please run modimporter.exe manually.")
