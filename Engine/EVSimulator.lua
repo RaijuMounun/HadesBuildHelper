@@ -1,48 +1,67 @@
 EVSimulator = EVSimulator or {}
 
 local CoreGods = {
-    Zeus = true,
-    Poseidon = true,
-    Athena = true,
-    Aphrodite = true,
-    Artemis = true,
-    Ares = true,
-    Dionysus = true,
-    Demeter = true
+    Zeus = true, Poseidon = true, Athena = true, Aphrodite = true,
+    Artemis = true, Ares = true, Dionysus = true, Demeter = true
 }
 
-function EVSimulator.PruneBlueprints(blueprints, active_gods, current_weapon)
-    local active_count = 0
-    local god_set = {}
+function EVSimulator.CalculateViability(weapon_blueprints, parsedState)
+    local results = {}
     
-    if active_gods then
-        for _, god in ipairs(active_gods) do
-            if CoreGods[god] and not god_set[god] then
-                god_set[god] = true
-                active_count = active_count + 1
-            end
+    local weapon_bps = weapon_blueprints[parsedState.WeaponName]
+    if not weapon_bps then return results end
+    
+    local builds_to_eval = {}
+    if parsedState.Aspect and weapon_bps[parsedState.Aspect] then
+        for _, bp in ipairs(weapon_bps[parsedState.Aspect]) do
+            table.insert(builds_to_eval, bp)
+        end
+    end
+    if parsedState.Aspect ~= "Base" and weapon_bps["Base"] then
+        for _, bp in ipairs(weapon_bps["Base"]) do
+            table.insert(builds_to_eval, bp)
+        end
+    end
+    if parsedState.Aspect == nil and weapon_bps["Base"] then
+        for _, bp in ipairs(weapon_bps["Base"]) do
+            table.insert(builds_to_eval, bp)
         end
     end
 
-    local valid_blueprints = {}
-    for _, bp in ipairs(blueprints) do
-        if bp.Weapon == nil or bp.Weapon == current_weapon then
-            local required_new_gods = 0
-            if bp.Gods then
-                for _, bgod in ipairs(bp.Gods) do
-                    if CoreGods[bgod] and not god_set[bgod] then
-                        required_new_gods = required_new_gods + 1
-                    end
+    local active_god_count = parsedState.GodCount or 0
+    local active_gods = parsedState.GodPool or {}
+    local keepsake = parsedState.Keepsake
+
+    for _, bp in ipairs(builds_to_eval) do
+        local viability = 1.0
+        
+        local required_new_gods = 0
+        local god_match_score = 0
+        if bp.RequiredGods then
+            for _, bgod in ipairs(bp.RequiredGods) do
+                if active_gods[bgod] then
+                    god_match_score = god_match_score + 1
+                else
+                    required_new_gods = required_new_gods + 1
+                end
+                
+                -- Keepsake bump
+                if keepsake and string.find(keepsake, bgod) then
+                    viability = viability + 0.5
                 end
             end
             
-            -- If we have fewer than 4 gods, we can add new ones up to the limit of 4.
-            -- If we already have 4 or more gods, we can only pursue blueprints that don't add new gods.
-            if active_count + required_new_gods <= 4 or required_new_gods == 0 then
-                table.insert(valid_blueprints, bp)
+            if active_god_count + required_new_gods > 4 and required_new_gods > 0 then
+                viability = viability * 0.1
+            end
+            
+            if #bp.RequiredGods > 0 then
+                viability = viability * (1.0 + (god_match_score / #bp.RequiredGods))
             end
         end
+        
+        table.insert(results, { Blueprint = bp, Viability = viability })
     end
     
-    return valid_blueprints
+    return results
 end

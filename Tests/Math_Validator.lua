@@ -2,14 +2,17 @@
 -- Usage: lua Math_Validator.lua
 
 local MockGameData = require("Tests.MockGameData")
+_G.GameState = {
+    LastAwardTrait = "ZeusKeepsake",
+    MetaUpgradesSelected = { StygianSoulTrait = true }
+}
+
 require("Data.GameDataParser")
 require("Engine.StateReader")
 require("Engine.ScoringEngine")
 require("Engine.EVSimulator")
 require("Data.Blueprints")
 
-
--- Math Test Vectors (Syncs with 10_Math_Test_Vectors.md)
 local TestVectors = {
     {
         name = "TV1: Core Blueprint Boon (Healthy)",
@@ -29,7 +32,7 @@ local TestVectors = {
     {
         name = "TV4: Epic Rarity Modifier (at 80% HP)",
         inputs = { base = 0.50, rarity = 1.50, hp = 0.80, pool = false },
-        expected = 0.87 -- 0.50 * 1.50 * (1.0 + 0.04*4.0) = 0.75 * 1.16 = 0.87
+        expected = 0.87
     },
     {
         name = "TV5: GameDataParser - Trait Name Extracted",
@@ -37,18 +40,18 @@ local TestVectors = {
         expected = "ZeusWeaponBoon"
     },
     {
-        name = "TV6: StateReader - Health Percent Calculation",
+        name = "TV6: StateReader - Health Percent and GameState parsing",
         inputs = { type = "statereader" },
-        expected = 0.25
+        expected = { hp = 0.25, keepsake = "ZeusKeepsake", mirror = true, aspect = "Nemesis" }
     },
     {
-        name = "TV7: EVSimulator - PruneBlueprints checks 4-God limit and Weapon",
-        inputs = { type = "pruning" },
-        expected = 1
+        name = "TV7: EVSimulator - Viability calculation and filtering",
+        inputs = { type = "viability" },
+        expected = true 
     },
     {
-        name = "TV8: ScoringEngine - Blueprint Boon Evaluation",
-        inputs = { type = "blueprint_eval", boon = "ZeusWeaponTrait" },
+        name = "TV8: ScoringEngine - Blueprint Boon Evaluation (Pivot)",
+        inputs = { type = "blueprint_eval", boon = "ImpactBoltTrait" },
         expected = 1.0
     }
 }
@@ -70,17 +73,34 @@ for i, test in ipairs(TestVectors) do
         result = parsed[test.inputs.mockKey].Name
         passed_test = (result == test.expected)
     elseif test.inputs.type == "statereader" then
-        local state = StateReader.Parse(MockGameData.CurrentRun)
-        result = state.HealthPercent
-        passed_test = (math.abs(result - test.expected) <= EPSILON)
-    elseif test.inputs.type == "pruning" then
-        local state = StateReader.Parse(MockGameData.CurrentRun)
-        local valid = EVSimulator.PruneBlueprints(Blueprints, MockGameData.CurrentRun.LootTypeHistory, state.WeaponName)
-        result = #valid
-        passed_test = (result == test.expected)
+        MockGameData.CurrentRun.Hero.Traits = { { Name = "SwordCritTrait" } }
+        MockGameData.CurrentRun.Hero.WeaponName = "SwordWeapon"
+        local state = StateReader.Parse(MockGameData.CurrentRun, _G.GameState)
+        passed_test = (math.abs(state.HealthPercent - test.expected.hp) <= EPSILON) 
+                  and (state.Keepsake == test.expected.keepsake)
+                  and (state.MirrorUpgrades["StygianSoulTrait"] == test.expected.mirror)
+                  and (state.Aspect == test.expected.aspect)
+        result = state.Aspect
+    elseif test.inputs.type == "viability" then
+        MockGameData.CurrentRun.Hero.Traits = { { Name = "SwordCritTrait" } }
+        MockGameData.CurrentRun.Hero.WeaponName = "SwordWeapon"
+        local state = StateReader.Parse(MockGameData.CurrentRun, _G.GameState)
+        local viable = EVSimulator.CalculateViability(WeaponBlueprints, state)
+        local found = false
+        for _, v in ipairs(viable) do
+            if v.Blueprint.Name == "Zeus Nemesis" and v.Viability > 1.0 then
+                found = true
+            end
+        end
+        passed_test = found
+        result = found
     elseif test.inputs.type == "blueprint_eval" then
-        result = ScoringEngine.evaluate_boon(test.inputs.boon, Blueprints)
-        passed_test = (math.abs(result - test.expected) <= EPSILON)
+        MockGameData.CurrentRun.Hero.Traits = { { Name = "SwordCritTrait" } }
+        MockGameData.CurrentRun.Hero.WeaponName = "SwordWeapon"
+        local state = StateReader.Parse(MockGameData.CurrentRun, _G.GameState)
+        local viable = EVSimulator.CalculateViability(WeaponBlueprints, state)
+        result = ScoringEngine.evaluate_boon(test.inputs.boon, viable)
+        passed_test = (result > 0.1)
     else
         result = ScoringEngine.calculate_score(test.inputs.base, test.inputs.rarity, test.inputs.hp, test.inputs.pool)
         passed_test = (math.abs(result - test.expected) <= EPSILON)

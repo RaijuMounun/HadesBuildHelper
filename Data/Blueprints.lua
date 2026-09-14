@@ -1,32 +1,61 @@
-Blueprints = Blueprints or {
-    {
-        Name = "Merciful End Fists",
-        CoreTraits = { "AresWeaponTrait", "AthenaSecondaryTrait", "AthenaRushTrait", "TriggerCurseTrait", "AresLongCurseTrait", "AresLoadCurseTrait" },
-        Gods = { "Ares", "Athena" },
-        Weapon = "FistWeapon"
+WeaponBlueprints = {
+    FistWeapon = {
+        Base = {
+            {
+                Name = "Merciful End Fists",
+                Components = { AresWeaponTrait = 1.0, AthenaSecondaryTrait = 1.0, AthenaRushTrait = 0.5, TriggerCurseTrait = 1.0, AresLongCurseTrait = 0.5, AresLoadCurseTrait = 0.5 },
+                RequiredGods = { "Ares", "Athena" }
+            }
+        }
     },
-    {
-        Name = "Sea-Storm Eris",
-        CoreTraits = { "ZeusWeaponTrait", "PoseidonSecondaryTrait", "ImpactBoltTrait", "ZeusLightningDebuff", "SlipperyTrait" },
-        Gods = { "Zeus", "Poseidon" },
-        Weapon = "GunWeapon"
+    GunWeapon = {
+        Eris = {
+            {
+                Name = "Sea-Storm Eris",
+                Components = { ZeusWeaponTrait = 1.0, PoseidonSecondaryTrait = 1.0, ImpactBoltTrait = 1.0, ZeusLightningDebuff = 0.8, SlipperyTrait = 0.8 },
+                RequiredGods = { "Zeus", "Poseidon" }
+            }
+        }
     },
-    {
-        Name = "Heart Rend Chiron",
-        CoreTraits = { "AphroditeWeaponTrait", "ArtemisSecondaryTrait", "HeartsickCritDamageTrait", "CritVulnerabilityTrait", "BowSecondaryBarrageTrait", "BowConsecutiveBarrageTrait" },
-        Gods = { "Aphrodite", "Artemis" },
-        Weapon = "BowWeapon"
+    BowWeapon = {
+        Chiron = {
+            {
+                Name = "Heart Rend Chiron",
+                Components = { AphroditeWeaponTrait = 1.0, ArtemisSecondaryTrait = 1.0, HeartsickCritDamageTrait = 1.0, CritVulnerabilityTrait = 1.0, BowSecondaryBarrageTrait = 0.5, BowConsecutiveBarrageTrait = 0.5 },
+                RequiredGods = { "Aphrodite", "Artemis" }
+            }
+        }
     },
-    {
-        Name = "Mirage Flare Beowulf",
-        CoreTraits = { "ShieldLoadAmmo_DionysusRangedTrait", "PoseidonRangedTrait", "ArtemisWeaponTrait", "ArtemisBonusProjectileTrait", "CritBonusTrait" },
-        Gods = { "Dionysus", "Poseidon", "Artemis" },
-        Weapon = "ShieldWeapon"
+    ShieldWeapon = {
+        Beowulf = {
+            {
+                Name = "Mirage Flare Beowulf",
+                Components = { ShieldLoadAmmo_DionysusRangedTrait = 1.0, PoseidonRangedTrait = 0.5, ArtemisWeaponTrait = 1.0, ArtemisBonusProjectileTrait = 1.0, CritBonusTrait = 0.8 },
+                RequiredGods = { "Dionysus", "Poseidon", "Artemis" }
+            }
+        }
     },
-    {
-        Name = "Hunting Blades Achilles",
-        CoreTraits = { "AresRangedTrait", "ArtemisWeaponTrait", "AresHomingTrait", "AresDragTrait", "AresAoETrait" },
-        Gods = { "Ares", "Artemis" },
-        Weapon = "SpearWeapon"
+    SpearWeapon = {
+        Achilles = {
+            {
+                Name = "Hunting Blades Achilles",
+                Components = { AresRangedTrait = 1.0, ArtemisWeaponTrait = 1.0, AresHomingTrait = 1.0, AresDragTrait = 0.8, AresAoETrait = 0.8 },
+                RequiredGods = { "Ares", "Artemis" }
+            }
+        }
+    },
+    SwordWeapon = {
+        Nemesis = {
+            {
+                Name = "Zeus Nemesis",
+                Components = { ZeusWeaponTrait = 1.0, ZeusSecondaryTrait = 0.5, ZeusRushTrait = 0.8, ImpactBoltTrait = 1.0 },
+                RequiredGods = { "Zeus" }
+            },
+            {
+                Name = "Poseidon Nemesis",
+                Components = { PoseidonWeaponTrait = 1.0, PoseidonSecondaryTrait = 0.5, PoseidonRushTrait = 0.8, SlipperyTrait = 1.0 },
+                RequiredGods = { "Poseidon" }
+            }
+        }
     }
 }
