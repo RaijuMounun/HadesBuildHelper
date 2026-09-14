@@ -2,11 +2,11 @@
 -- Usage: lua Math_Validator.lua
 
 local MockGameData = require("Tests.MockGameData")
-local GameDataParser = require("Data.GameDataParser")
-local StateReader = require("Engine.StateReader")
-local ScoringEngine = require("Engine.ScoringEngine")
-local EVSimulator = require("Engine.EVSimulator")
-local Blueprints = require("Data.Blueprints")
+require("Data.GameDataParser")
+require("Engine.StateReader")
+require("Engine.ScoringEngine")
+require("Engine.EVSimulator")
+require("Data.Blueprints")
 
 
 -- Math Test Vectors (Syncs with 10_Math_Test_Vectors.md)
@@ -42,13 +42,13 @@ local TestVectors = {
         expected = 0.25
     },
     {
-        name = "TV7: EVSimulator - PruneBlueprints checks 4-God limit",
+        name = "TV7: EVSimulator - PruneBlueprints checks 4-God limit and Weapon",
         inputs = { type = "pruning" },
-        expected = 2
+        expected = 1
     },
     {
         name = "TV8: ScoringEngine - Blueprint Boon Evaluation",
-        inputs = { type = "blueprint_eval", boon = "ZeusWeaponBoon" },
+        inputs = { type = "blueprint_eval", boon = "ZeusWeaponTrait" },
         expected = 1.0
     }
 }
@@ -74,7 +74,8 @@ for i, test in ipairs(TestVectors) do
         result = state.HealthPercent
         passed_test = (math.abs(result - test.expected) <= EPSILON)
     elseif test.inputs.type == "pruning" then
-        local valid = EVSimulator.PruneBlueprints(Blueprints, MockGameData.CurrentRun.LootTypeHistory)
+        local state = StateReader.Parse(MockGameData.CurrentRun)
+        local valid = EVSimulator.PruneBlueprints(Blueprints, MockGameData.CurrentRun.LootTypeHistory, state.WeaponName)
         result = #valid
         passed_test = (result == test.expected)
     elseif test.inputs.type == "blueprint_eval" then

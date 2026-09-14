@@ -29,7 +29,7 @@ OnAnyLoad{ function( triggerArgs )
                     for god, _ in pairs(parsedState.GodPool) do
                         table.insert(active_gods, god)
                     end
-                    valid_blueprints = EVSimulator.PruneBlueprints(Blueprints, active_gods)
+                    valid_blueprints = EVSimulator.PruneBlueprints(Blueprints, active_gods, parsedState.WeaponName)
                 end)
                 
                 local pool_penalty = parsedState.GodCount >= 4

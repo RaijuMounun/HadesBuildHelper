@@ -1,4 +1,4 @@
-local ScoringEngine = {}
+ScoringEngine = ScoringEngine or {}
 
 local function curve_polynomial(x, exponent)
     return x ^ exponent
@@ -33,5 +33,3 @@ function ScoringEngine.evaluate_boon(boon_name, blueprints)
         return 0.1
     end
 end
-
-return ScoringEngine

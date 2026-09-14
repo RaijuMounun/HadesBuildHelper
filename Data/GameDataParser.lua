@@ -1,5 +1,5 @@
 -- GameDataParser.lua
-local GameDataParser = {}
+GameDataParser = GameDataParser or {}
 
 function GameDataParser.ParseTraits(traitData)
     local parsed = {}
@@ -15,5 +15,3 @@ function GameDataParser.ParseTraits(traitData)
     
     return parsed
 end
-
-return GameDataParser

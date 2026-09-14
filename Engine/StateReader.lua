@@ -1,5 +1,14 @@
 -- StateReader.lua
-local StateReader = {}
+StateReader = StateReader or {}
+
+local PrimaryWeapons = {
+    SwordWeapon = true,
+    SpearWeapon = true,
+    ShieldWeapon = true,
+    BowWeapon = true,
+    FistWeapon = true,
+    GunWeapon = true
+}
 
 function StateReader.Parse(currentRun)
     local state = {
@@ -14,6 +23,23 @@ function StateReader.Parse(currentRun)
         if maxHp > 0 then
             state.HealthPercent = hp / maxHp
         end
+        
+        if currentRun.Hero.WeaponName then
+            state.WeaponName = currentRun.Hero.WeaponName
+        elseif type(currentRun.Hero.Weapons) == "table" then
+            for weaponName, _ in pairs(currentRun.Hero.Weapons) do
+                if PrimaryWeapons[weaponName] then
+                    state.WeaponName = weaponName
+                    break
+                end
+            end
+            if not state.WeaponName then
+                for weaponName, _ in pairs(currentRun.Hero.Weapons) do
+                    state.WeaponName = weaponName
+                    break
+                end
+            end
+        end
     end
     
     if currentRun and currentRun.LootTypeHistory then
@@ -27,5 +53,3 @@ function StateReader.Parse(currentRun)
     
     return state
 end
-
-return StateReader

@@ -14,6 +14,7 @@ MockGameData.CurrentRun = {
     Hero = {
         Health = 25,
         MaxHealth = 100,
+        WeaponName = "GunWeapon",
         Traits = {
             MockGameData.TraitData.ZeusWeaponBoon
         }
