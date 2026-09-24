@@ -1,9 +1,4 @@
 :: Hades Build Helper Mod
 
 To "Scripts/Main.lua"
-	Import "Data/GameDataParser.lua"
-	Import "Data/Blueprints.lua"
-	Import "Engine/StateReader.lua"
-	Import "Engine/ScoringEngine.lua"
-	Import "Engine/EVSimulator.lua"
 	Import "Main.lua"

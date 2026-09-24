@@ -47,14 +47,16 @@ WeaponBlueprints = {
     SwordWeapon = {
         Nemesis = {
             {
-                Name = "Zeus Nemesis",
-                Components = { ZeusWeaponTrait = 1.0, ZeusSecondaryTrait = 0.5, ZeusRushTrait = 0.8, ImpactBoltTrait = 1.0 },
-                RequiredGods = { "Zeus" }
-            },
+                Name = "Heart Rend Nemesis",
+                Components = { AphroditeWeaponTrait = 1.0, ArtemisSecondaryTrait = 1.0, ArtemisRushTrait = 0.8, HeartsickCritDamageTrait = 1.0, CritVulnerabilityTrait = 1.0, SwordDoubleDashAttackTrait = 1.0, SwordCriticalTrait = 0.5 },
+                RequiredGods = { "Aphrodite", "Artemis" }
+            }
+        },
+        Base = {
             {
-                Name = "Poseidon Nemesis",
-                Components = { PoseidonWeaponTrait = 1.0, PoseidonSecondaryTrait = 0.5, PoseidonRushTrait = 0.8, SlipperyTrait = 1.0 },
-                RequiredGods = { "Poseidon" }
+                Name = "Base Sword Generic DPS",
+                Components = { ZeusWeaponTrait = 1.0, PoseidonSecondaryTrait = 0.8, AthenaRushTrait = 1.0, SwordDoubleDashAttackTrait = 1.0, SwordHeavySecondStrikeTrait = 0.7 },
+                RequiredGods = {}
             }
         }
     }
